@@ -17,7 +17,11 @@ html, body {
 }
 
 #dangtints, #quanly, #thongtin, #logout {
-    display: none; /* Ẩn tất cả các phần tử này mặc định */
+    display: none; 
+}
+
+#taikhoan {
+    display: block;
 }
 
 /* header */
@@ -41,6 +45,7 @@ html, body {
     padding: 0;
     display: flex;
     justify-content: space-between;
+    text-align: center;
 }
 
 .menu1 > li {
@@ -53,12 +58,14 @@ html, body {
     width: 40px;
     height: 40px;
     padding: 1%;
-
 }
 
-#date {
+/* #date {
     text-align: center;
 }
+#taikhoan {
+    text-align: center;
+} */
 
 /* Menu*/
 .menu {

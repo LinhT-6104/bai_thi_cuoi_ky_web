@@ -86,7 +86,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Hiển thị danh sách hồ sơ ban đầu
     if (table) themhangall();
 
-    // Hàm thêm và quản lý hồ sơ
+    // Hiển thị hồ sơ 
     function themhang(trangthai) {
         const danhsachhoso = down_local_ho_so();
 
@@ -110,6 +110,7 @@ document.addEventListener('DOMContentLoaded', function () {
             danhsachhoso.forEach((hoso, index) => addRow(hoso, index));
         }
     }
+
     // Hàm thêm từng dòng vào bảng
     function addRow(hoso, index) {
         const row = table.insertRow();
@@ -150,8 +151,8 @@ document.addEventListener('DOMContentLoaded', function () {
     window.xemhs = function (index) {
         const danhsachhoso = down_local_ho_so();
         const hoso = danhsachhoso[index];
-        localStorage.setItem('hosochuyenhuong', JSON.stringify(hoso));  // Lưu thông tin hồ sơ vào localStorage
-        window.location.href = '/HTML/thongtinhoso.html';  // Chuyển tới trang thongtinhoso.html
+        localStorage.setItem('hosochuyenhuong', JSON.stringify(hoso));
+        window.location.href = '/HTML/thongtinhoso.html';
     }
     // Hàm cập nhật trạng thái hồ sơ
     function updateTrangThai(index, trangthai) {
@@ -190,10 +191,38 @@ document.addEventListener('DOMContentLoaded', function () {
             alert("Vui lòng điền đầy đủ thông tin.");
             return;
         }
-        if (socccd.length() != 12) {
+        if (socccd.length < 12) {
             alert("Vui lòng nhập số căn cước công dân hợp lệ!");
             return;
         }
+        if (sodt.length < 12) {
+            alert("Vui lòng nhập số điện thoại hợp lệ!");
+            return;
+        }
+        if (sodt_nguoithan.length < 12) {
+            alert("Vui lòng nhập số điện thoại người thân hợp lệ!");
+            return;
+        }
+        if (!isValidDate(ngaysinh)) {
+            alert("Ngày sinh không hợp lệ! Vui lòng nhập ngày sinh đúng định dạng, ví dụ: 01/01/2004")
+        }
+        if (!isValidDate(ngaycap)) {
+            alert("Ngày cấp cccd không hợp lệ! Vui lòng nhập ngày cấp cccd đúng định dạng, ví dụ: 01/01/2004")
+        }
+        if (!email.includes('@') || email.indexOf('@') === 0
+            || email.indexOf('@') !== email.lastIndexOf('@')
+            || email.lastIndexOf('.') < email.indexOf('@') + 2
+            || email.lastIndexOf('.') === email.length - 1
+            || email.includes(' ')) {
+            alert("Email không hợp lệ! Vui lòng nhập email đúng định dạng, ví dụ: abc@gmail.com");
+            return;
+        }
+        // !email.includes('@'): Email phải chứa ký tự @.
+        // email.indexOf('@') === 0: @ không được nằm ở đầu email.
+        // email.indexOf('@') !== email.lastIndexOf('@'): Email không được chứa nhiều ký tự @.
+        // email.lastIndexOf('.') < email.indexOf('@') + 2: Phải có dấu . sau @, với ít nhất 1 ký tự giữa @ và ..
+        // email.lastIndexOf('.') === email.length - 1: . không được nằm ở cuối email.
+        // email.includes(' '): Email không được chứa khoảng trắng.
 
         const hoso = {
             hoten, ngaysinh, socccd, ngaycap, noicap, gioitinh, noisinh, dantoc, sodt, sodt_nguoithan, email,
@@ -203,22 +232,51 @@ document.addEventListener('DOMContentLoaded', function () {
         };
 
         let danhsachhoso = down_local_ho_so();
-
         const index = danhsachhoso.findIndex(hoso => hoso.socccd === socccd);
-
         if (index !== -1) {
             danhsachhoso[index] = hoso;
-            // danhsachhoso[index] = { ...danhsachhoso[index], ...hoso };
             alert("Cập nhật hồ sơ thành công!");
         } else {
             danhsachhoso.push(hoso);
             alert("Lưu hồ sơ thành công!");
         }
-        
+
         save_local_ho_so(danhsachhoso);
         themhangall();
     }
-
+    function isValidDate(dateStr) {
+        // Tách chuỗi theo dấu "/"
+        const parts = dateStr.split('/');
+    
+        // Kiểm tra nếu không đủ 3 phần (ngày, tháng, năm)
+        if (parts.length !== 3) {
+            return false;
+        }
+    
+        const day = Number(parts[0]);
+        const month = Number(parts[1]);
+        const year = Number(parts[2]);
+    
+        // Kiểm tra giá trị ngày, tháng, năm
+        if (
+            isNaN(day) || isNaN(month) || isNaN(year) || // Phải là số
+            day < 1 || day > 31 ||                      // Ngày trong khoảng 1-31
+            month < 1 || month > 12 ||                  // Tháng trong khoảng 1-12
+            year < 1900 || year > new Date().getFullYear() // Năm từ 1900 đến năm hiện tại
+        ) {
+            return false;
+        }
+    
+        // Kiểm tra các tháng đặc biệt
+        const daysInMonth = [31, (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    
+        if (day > daysInMonth[month - 1]) {
+            return false; // Ngày vượt quá số ngày tối đa của tháng
+        }
+    
+        return true; // Tất cả kiểm tra đều hợp lệ
+    }
+    
     // pop-up bổ sung thông tin
     let bosungIndex = null;
     // Tạo HTML của pop-up khi cần bổ sung
@@ -252,7 +310,7 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById("bosungDetails").value = "";
         bosungIndex = null;
     }
-    // Xử lý nút "Hủy" trong pop-up
+    // Ấn "Hủy" 
     document.getElementById("cancelBosung").addEventListener("click", function () {
         closePopup();
     });
@@ -283,29 +341,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // Hiển thi thông tin đã có của thí sinh
-    function hienthithongtinhoso() {
-        let nguoihoatdong = JSON.parse(localStorage.getItem('nguoihoatdong')) || [];
-        let danhsachhoso = down_local_ho_so();
-        let danhsachnguoidung = down_local_user();
-
-        if (nguoihoatdong.nameID === "admin123") {
-            let hosochuyenhuong = JSON.parse(localStorage.getItem('hosochuyenhuong')) || [];
-            fillData(hosochuyenhuong);
-        } else {
-            danhsachnguoidung.forEach(nguoidung => {
-                if (nguoidung.nameID === nguoihoatdong.nameID) {
-                    danhsachhoso.forEach(hoso => {
-                        if (hoso.socccd === nguoihoatdong.cccd) {
-                            fillData(hoso);
-                            return;
-                        }
-                    })
-                    return;
-                }
-            });
-        }
-    }
+    // Hiển thị thông tin đã có của thí sinh
     function fillData(hoso) {
         console.log("Hồ sơ tìm thấy:", hoso);
         const trangthaihs = document.getElementById('trangthaihs');
@@ -332,32 +368,52 @@ document.addEventListener('DOMContentLoaded', function () {
         // Kiểm tra tất cả trường có dữ liệu
         if (hoso.hoten || hoso.ngaysinh || hoso.socccd || hoso.ngaycap || hoso.noicap || hoso.gioitin || hoso.oisinh || hoso.dantoc ||
             hoso.sodt || hoso.sodt_nguoithan || hoso.email || hoso.tinh_thanh_thuongtru || hoso.quan_huyen_thuongtru || hoso.phuong_xa_thuongtru ||
-            hoso.diachicuthe || hoso.tinh_thanh_lienlac || hoso.quan_huyen_lienlac || hoso.phuong_xa_lienlac || hoso.diachilienlac) 
-            {
-                trangthaihs.innerText = hoso.trangthai.trim();
-                hoten.value = hoso.hoten.trim();
-                ngaysinh.value = hoso.ngaysinh.trim();
-                socccd.value = hoso.socccd.trim();
-                ngaycap.value = hoso.ngaycap.trim();
-                noicap.value = hoso.noicap.trim();
-                gioitinh.value = hoso.gioitinh.trim();
-                noisinh.value = hoso.noisinh.trim();
-                dantoc.value = hoso.dantoc.trim();
-                sodt.value = hoso.sodt.trim();
-                sodt_nguoithan.value = hoso.sodt_nguoithan.trim();
-                email.value = hoso.email.trim();
-                tinh_thanh_thuongtru.value = hoso.tinh_thanh_thuongtru.trim();
-                quan_huyen_thuongtru.value = hoso.quan_huyen_thuongtru.trim();
-                phuong_xa_thuongtru.value = hoso.phuong_xa_thuongtru.trim();
-                diachicuthe.value = hoso.diachicuthe.trim();
-                tinh_thanh_lienlac.value = hoso.tinh_thanh_lienlac.trim();
-                quan_huyen_lienlac.value = hoso.quan_huyen_lienlac.trim();
-                phuong_xa_lienlac.value = hoso.phuong_xa_lienlac.trim();
-                diachilienlac.value = hoso.diachilienlac.trim();
-            }
+            hoso.diachicuthe || hoso.tinh_thanh_lienlac || hoso.quan_huyen_lienlac || hoso.phuong_xa_lienlac || hoso.diachilienlac) {
+            trangthaihs.innerText = hoso.trangthai.trim();
+            hoten.value = hoso.hoten.trim();
+            ngaysinh.value = hoso.ngaysinh.trim();
+            socccd.value = hoso.socccd.trim();
+            ngaycap.value = hoso.ngaycap.trim();
+            noicap.value = hoso.noicap.trim();
+            gioitinh.value = hoso.gioitinh.trim();
+            noisinh.value = hoso.noisinh.trim();
+            dantoc.value = hoso.dantoc.trim();
+            sodt.value = hoso.sodt.trim();
+            sodt_nguoithan.value = hoso.sodt_nguoithan.trim();
+            email.value = hoso.email.trim();
+            tinh_thanh_thuongtru.value = hoso.tinh_thanh_thuongtru.trim();
+            quan_huyen_thuongtru.value = hoso.quan_huyen_thuongtru.trim();
+            phuong_xa_thuongtru.value = hoso.phuong_xa_thuongtru.trim();
+            diachicuthe.value = hoso.diachicuthe.trim();
+            tinh_thanh_lienlac.value = hoso.tinh_thanh_lienlac.trim();
+            quan_huyen_lienlac.value = hoso.quan_huyen_lienlac.trim();
+            phuong_xa_lienlac.value = hoso.phuong_xa_lienlac.trim();
+            diachilienlac.value = hoso.diachilienlac.trim();
+        }
         return;
     }
+    function hienthithongtinhoso() {
+        let nguoihoatdong = JSON.parse(localStorage.getItem('nguoihoatdong')) || [];
+        let danhsachhoso = down_local_ho_so();
+        let danhsachnguoidung = down_local_user();
 
+        if (nguoihoatdong.nameID === "admin123") {
+            let hosochuyenhuong = JSON.parse(localStorage.getItem('hosochuyenhuong')) || [];
+            fillData(hosochuyenhuong);
+        } else {
+            danhsachnguoidung.forEach(nguoidung => {
+                if (nguoidung.nameID === nguoihoatdong.nameID) {
+                    danhsachhoso.forEach(hoso => {
+                        if (hoso.socccd === nguoihoatdong.cccd) {
+                            fillData(hoso);
+                            return;
+                        }
+                    })
+                    return;
+                }
+            });
+        }
+    }
     hienthithongtinhoso();
 
     // Hàm quản lý localStorage
