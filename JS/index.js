@@ -13,6 +13,13 @@ document.addEventListener('DOMContentLoaded', function() {
         window.location.href = '/index.html';
     });
 
+    // Hiển thị tên tài khoản
+    const nguoihoatdong = JSON.parse(localStorage.getItem('nguoihoatdong'));
+    if (nguoihoatdong) {
+        let taikhoan = document.getElementById('taikhoan');
+        taikhoan.innerText = `Xin chào, ${nguoihoatdong.nameID}`;
+    }
+
     // Thanh tìm kiếm
     const searchIcon = document.getElementById('searchIcon');
     const searchBar  = document.getElementById('search');
@@ -143,7 +150,6 @@ window.hienthitatca = function () {
         });
     }
 }
-
 // Thêm khối bài đăng
 window.themKhoi = function (baidang, index) {
     let anhnoibat = document.createElement('img');
@@ -153,6 +159,7 @@ window.themKhoi = function (baidang, index) {
 
     let tieude = document.createElement('h3');
     tieude.innerHTML = baidang.tieude;
+    tieude.style.cursor = 'pointer';
     tieude.onclick = function() {
         xem(index);
     }
@@ -173,6 +180,11 @@ window.themKhoi = function (baidang, index) {
     khoi.appendChild(khoitieude);
 
     return khoi;
+}
+// Xem bài đăng
+window.xem = function (i) {
+    localStorage.setItem('baidangchuyenhuong', i);
+    window.location.href = "/HTML/tus.html";
 }
 
 // Tìm kiếm và hiển thị
@@ -210,10 +222,4 @@ window.down_local_bai_dang = function () {
 }
 window.save_local_bai_dang = function (danhsachbaidang) {
     localStorage.setItem('baidang', JSON.stringify(danhsachbaidang));
-}
-
-// Xem bài đăng
-window.xem = function (i) {
-    localStorage.setItem('baidangchuyenhuong', i);
-    window.location.href = "/HTML/tus.html";
 }

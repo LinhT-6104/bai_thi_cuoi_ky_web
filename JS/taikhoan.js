@@ -33,33 +33,51 @@ function themhang() {
 };
 window.onload = themhang;
 
-function hienthiformsua(index) {
+function hienthiformsua(i) {
     const formsua = document.getElementById('formsua');
     const isSearchBarVisible = formsua.style.display === 'block';
     formsua.style.display = isSearchBarVisible ? 'none' : 'block';
     
     let danhsachnguoidung = down_local_user();
     
-    let namelogin = document.getElementById('renamelogin');
-    let pass = document.getElementById('repassword');
-    namelogin.value = danhsachnguoidung[index].nameID;
-    pass.value = danhsachnguoidung[index].pass;
+    let nameID = document.getElementById('renameID');
+    let cccd = document.getElementById('recccd');
+    let fullname = document.getElementById('refullname');
+    let email = document.getElementById('reemail');
+    let pass = document.getElementById('repass');
+
+    nameID.value = danhsachnguoidung[i].nameID;
+    cccd.value = danhsachnguoidung[i].cccd;
+    fullname.value = danhsachnguoidung[i].fullname;
+    email.value = danhsachnguoidung[i].email;
+    pass.value = danhsachnguoidung[i].pass;
 
     const btnsua = document.getElementById('btnsua');
     btnsua.onclick = function() {
-        suanguoidung(index);
+        suanguoidung(i);
     }
 }
 
 function suanguoidung(i) {
-    let renamelogin = document.getElementById('renamelogin').value;
-    let repassword = document.getElementById('repassword').value;
+    let renameID = document.getElementById('renameID').value;
+    let recccd = document.getElementById('recccd').value;
+    let refullname = document.getElementById('refullname').value;
+    let reemail = document.getElementById('reemail').value;
+    let repass = document.getElementById('repass').value;
+
     let danhsachnguoidung = down_local_user();
-    danhsachnguoidung[i].nameID = renamelogin;
-    danhsachnguoidung[i].pass = repassword;
+
+    danhsachnguoidung[i].nameID = renameID;
+    danhsachnguoidung[i].cccd = recccd;
+    danhsachnguoidung[i].fullname = refullname;
+    danhsachnguoidung[i].email = reemail;
+    danhsachnguoidung[i].pass = repass;
 
     save_local_user(danhsachnguoidung);
     themhang();
+
+    // Ẩn bảng đăng sửa
+    document.getElementById("formsua").style.display = 'none';
 }
 
 function xoa(i) {
@@ -70,34 +88,90 @@ function xoa(i) {
 }
 
 function kiemtradangky() {
-    let namelogin  = document.getElementById('namelogin').value.trim();
-    let password = document.getElementById('password').value.trim();
+    let nameID = document.getElementById('nameID').value.trim();
+    let cccd = document.getElementById('cccd').value.trim();
+    let fullname = document.getElementById('fullname').value.trim();
+    let email = document.getElementById('email').value.trim();
+    let pass = document.getElementById('pass').value.trim();
 
-    let danhsachnguoidung = down_local_user();
-
-    if (namelogin === "" || password === "") {
+    if (nameID === "" || cccd === "" || fullname === "" || email === "" || pass === "") {
         alert('Vui lòng điền đầy đủ thông tin');
         return;
     }
-    if (!(password.length >= 8) || password.trim().includes(" ")) {
-        alert('Mật khẩu phải có độ dài ít nhất 8 ký tự không dấu không cách')
-        return
-    }
-    if (namelogin === 'admin123') {
+    if (nameID === 'admin123') {
         alert('Không thể đăng ký tên tài khoản trên!');
         return
     }
-    if (danhsachnguoidung.some(user => user.nameID === namelogin)) {
-        alert('Tài khoản đã tồn tại vui lòng nhập tên khác');
+    if (cccd.length < 12) {
+        alert('Vui lòng điền mã căn cước công dân hợp lệ');
         return
     }
+    if (!(pass.length >= 8) || pass.trim().includes(" ")) {
+        alert('Mật khẩu phải có độ dài ít nhất 8 ký tự không dấu không cách')
+        return
+    }
+    if (!email.includes('@') || email.indexOf('@') === 0 
+        || email.indexOf('@') !== email.lastIndexOf('@') 
+        || email.lastIndexOf('.') < email.indexOf('@') + 2 
+        || email.lastIndexOf('.') === email.length - 1 
+        || email.includes(' ')) {
+        alert("Email không hợp lệ. Vui lòng nhập email đúng định dạng, ví dụ: abc@gmail.com");
+        return;
+    }    
+    // !email.includes('@'): Email phải chứa ký tự @.
+    // email.indexOf('@') === 0: @ không được nằm ở đầu email.
+    // email.indexOf('@') !== email.lastIndexOf('@'): Email không được chứa nhiều ký tự @.
+    // email.lastIndexOf('.') < email.indexOf('@') + 2: Phải có dấu . sau @, với ít nhất 1 ký tự giữa @ và ..
+    // email.lastIndexOf('.') === email.length - 1: . không được nằm ở cuối email.
+    // email.includes(' '): Email không được chứa khoảng trắng.
+    
+    let danhsachnguoidung = down_local_user();
+
+    if (danhsachnguoidung.some(user => user.nameID === nameID)) {
+        alert('Tên tài khoản đã tồn tại vui lòng nhập tên khác');
+        return
+    }
+    if (danhsachnguoidung.some(user => user.cccd === cccd)) {
+        alert('Mã căn cước công dân đã tồn tại vui lòng nhập tên khác');
+        return
+    }
+    if (danhsachnguoidung.some(user => user.email === email)) {
+        alert('Email đã tồn tại vui lòng nhập tên khác');
+        return
+    }
+
     let nguoidung = {
-        nameID: namelogin, 
-        pass: password
+        nameID: nameID, 
+        cccd: cccd,
+        fullname: fullname,
+        email: email,
+        pass: pass
     };
 
     danhsachnguoidung.push(nguoidung);
     save_local_user(danhsachnguoidung);
+
     alert("Đăng ký thành công!");
     themhang();
+
+    // Ẩn bảng đăng ký
+    document.getElementById("formthem").style.display = 'none';
 }
+
+// Thêm sự kiện ấn enter để thêm tài khoản
+const nameID = document.getElementById('nameID');
+const email = document.getElementById('email');
+const cccd = document.getElementById('cccd');
+const fullname = document.getElementById('fullname');
+const pass = document.getElementById('pass');
+
+function clickEnterThemTK(event) {
+    if (event.key === 'Enter') {
+        kiemtradangky();
+    }
+}
+nameID.addEventListener('keyup', clickEnterThemTK);
+email.addEventListener('keyup', clickEnterThemTK);
+cccd.addEventListener('keyup', clickEnterThemTK);
+fullname.addEventListener('keyup', clickEnterThemTK);
+pass.addEventListener('keyup', clickEnterThemTK);
