@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Kiểm tra đăng nhập
     isAdmin();  // Kiểm tra tài khoản
+    tendn();    // Hiển thị tên tài khoản
 
     // Đăng nhập
     let dangNhap = document.getElementById('login');
@@ -12,13 +13,6 @@ document.addEventListener('DOMContentLoaded', function() {
         localStorage.removeItem('nguoihoatdong');
         window.location.href = '/index.html';
     });
-
-    // Hiển thị tên tài khoản
-    const nguoihoatdong = JSON.parse(localStorage.getItem('nguoihoatdong'));
-    if (nguoihoatdong) {
-        let taikhoan = document.getElementById('taikhoan');
-        taikhoan.innerText = `Xin chào, ${nguoihoatdong.nameID}`;
-    }
 
     // Thanh tìm kiếm
     const searchIcon = document.getElementById('searchIcon');
@@ -132,6 +126,7 @@ window.isAdmin = function () {
             thongtinhs.style.display = 'flex';
         }
     }
+
 }
 
 // Hiển thị bài đăng
@@ -223,3 +218,18 @@ window.down_local_bai_dang = function () {
 window.save_local_bai_dang = function (danhsachbaidang) {
     localStorage.setItem('baidang', JSON.stringify(danhsachbaidang));
 }
+
+function tendn(){
+    const nguoihoatdong = JSON.parse(localStorage.getItem('nguoihoatdong'));
+    console.log(nguoihoatdong);
+    if (nguoihoatdong) {
+        let taikhoan = document.getElementById('taikhoan');
+        taikhoan.innerHTML = `Xin chào, ${nguoihoatdong.nameID}`;
+        taikhoan.style.width = '200px';
+    }
+}
+
+// function returnTaiKhoan() {
+//     const nguoihoatdong = JSON.parse(localStorage.getItem('nguoihoatdong'));
+//     return nguoihoatdong.nameID || "";
+// }

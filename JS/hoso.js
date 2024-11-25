@@ -195,19 +195,21 @@ document.addEventListener('DOMContentLoaded', function () {
             alert("Vui lòng nhập số căn cước công dân hợp lệ!");
             return;
         }
-        if (sodt.length < 12) {
+        if (sodt.length < 9) {
             alert("Vui lòng nhập số điện thoại hợp lệ!");
             return;
         }
-        if (sodt_nguoithan.length < 12) {
+        if (sodt_nguoithan.length < 9) {
             alert("Vui lòng nhập số điện thoại người thân hợp lệ!");
             return;
         }
         if (!isValidDate(ngaysinh)) {
             alert("Ngày sinh không hợp lệ! Vui lòng nhập ngày sinh đúng định dạng, ví dụ: 01/01/2004")
+            return
         }
         if (!isValidDate(ngaycap)) {
             alert("Ngày cấp cccd không hợp lệ! Vui lòng nhập ngày cấp cccd đúng định dạng, ví dụ: 01/01/2004")
+            return
         }
         if (!email.includes('@') || email.indexOf('@') === 0
             || email.indexOf('@') !== email.lastIndexOf('@')
