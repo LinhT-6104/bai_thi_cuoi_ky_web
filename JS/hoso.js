@@ -249,16 +249,16 @@ document.addEventListener('DOMContentLoaded', function () {
     function isValidDate(dateStr) {
         // Tách chuỗi theo dấu "/"
         const parts = dateStr.split('/');
-    
+
         // Kiểm tra nếu không đủ 3 phần (ngày, tháng, năm)
         if (parts.length !== 3) {
             return false;
         }
-    
+
         const day = Number(parts[0]);
         const month = Number(parts[1]);
         const year = Number(parts[2]);
-    
+
         // Kiểm tra giá trị ngày, tháng, năm
         if (
             isNaN(day) || isNaN(month) || isNaN(year) || // Phải là số
@@ -268,17 +268,17 @@ document.addEventListener('DOMContentLoaded', function () {
         ) {
             return false;
         }
-    
+
         // Kiểm tra các tháng đặc biệt
         const daysInMonth = [31, (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-    
+
         if (day > daysInMonth[month - 1]) {
             return false; // Ngày vượt quá số ngày tối đa của tháng
         }
-    
+
         return true; // Tất cả kiểm tra đều hợp lệ
     }
-    
+
     // pop-up bổ sung thông tin
     let bosungIndex = null;
     // Tạo HTML của pop-up khi cần bổ sung
@@ -344,8 +344,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Hiển thị thông tin đã có của thí sinh
-    function fillData(hoso) {
-        console.log("Hồ sơ tìm thấy:", hoso);
+    function fillData(hoso, taikhoan) {
         const trangthaihs = document.getElementById('trangthaihs');
         const hoten = document.getElementById('hoten');
         const ngaysinh = document.getElementById('ngaysinh');
@@ -368,13 +367,22 @@ document.addEventListener('DOMContentLoaded', function () {
         const diachilienlac = document.getElementById('diachilienlac');
 
         // Kiểm tra tất cả trường có dữ liệu
-        if (hoso.hoten || hoso.ngaysinh || hoso.socccd || hoso.ngaycap || hoso.noicap || hoso.gioitin || hoso.oisinh || hoso.dantoc ||
-            hoso.sodt || hoso.sodt_nguoithan || hoso.email || hoso.tinh_thanh_thuongtru || hoso.quan_huyen_thuongtru || hoso.phuong_xa_thuongtru ||
-            hoso.diachicuthe || hoso.tinh_thanh_lienlac || hoso.quan_huyen_lienlac || hoso.phuong_xa_lienlac || hoso.diachilienlac) {
-            trangthaihs.innerText = hoso.trangthai.trim();
+        if (!hoso) {
+            hoten.value = taikhoan.hoten.trim();
+            socccd.value = taikhoan.socccd.trim();
+            email.value = taikhoan.email.trim();
+        } else {
             hoten.value = hoso.hoten.trim();
-            ngaysinh.value = hoso.ngaysinh.trim();
             socccd.value = hoso.socccd.trim();
+            email.value = hoso.email.trim();
+        }
+        console.log("Hồ sơ tìm thấy:", hoso);
+
+        if (hoso.ngaysinh && hoso.ngaycap && hoso.noicap && hoso.gioitin && hoso.oisinh && hoso.dantoc &&
+            hoso.sodt && hoso.sodt_nguoithan && hoso.tinh_thanh_thuongtru && hoso.quan_huyen_thuongtru && hoso.phuong_xa_thuongtru &&
+            hoso.diachicuthe && hoso.tinh_thanh_lienlac && hoso.quan_huyen_lienlac && hoso.phuong_xa_lienlac && hoso.diachilienlac) {
+            trangthaihs.innerText = hoso.trangthai.trim();
+            ngaysinh.value = hoso.ngaysinh.trim();
             ngaycap.value = hoso.ngaycap.trim();
             noicap.value = hoso.noicap.trim();
             gioitinh.value = hoso.gioitinh.trim();
@@ -382,7 +390,6 @@ document.addEventListener('DOMContentLoaded', function () {
             dantoc.value = hoso.dantoc.trim();
             sodt.value = hoso.sodt.trim();
             sodt_nguoithan.value = hoso.sodt_nguoithan.trim();
-            email.value = hoso.email.trim();
             tinh_thanh_thuongtru.value = hoso.tinh_thanh_thuongtru.trim();
             quan_huyen_thuongtru.value = hoso.quan_huyen_thuongtru.trim();
             phuong_xa_thuongtru.value = hoso.phuong_xa_thuongtru.trim();
@@ -395,26 +402,42 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
     }
     function hienthithongtinhoso() {
-        let nguoihoatdong = JSON.parse(localStorage.getItem('nguoihoatdong')) || [];
-        let danhsachhoso = down_local_ho_so();
+        let nguoihoatdong = JSON.parse(localStorage.getItem('nguoihoatdong')) || null;
         let danhsachnguoidung = down_local_user();
+        let taikhoan = null;
+        
+        if (nguoihoatdong) {
+            if (nguoihoatdong.nameID == "admin123") {
+                let hosochuyenhuong = JSON.parse(localStorage.getItem('hosochuyenhuong')) || null;
+                danhsachnguoidung.forEach(nguoidung => {
+                    if (nguoidung.nameID == nguoihoatdong.nameID) {
+                        taikhoan = nguoidung;
+                        return
+                    }
+                })
+                console.log(hosochuyenhuong);
+                fillData(hosochuyenhuong, taikhoan);
+            } else {
+                let danhsachhoso = down_local_ho_so();
+                let hosothisinh = null;
 
-        if (nguoihoatdong.nameID === "admin123") {
-            let hosochuyenhuong = JSON.parse(localStorage.getItem('hosochuyenhuong')) || [];
-            fillData(hosochuyenhuong);
-        } else {
-            danhsachnguoidung.forEach(nguoidung => {
-                if (nguoidung.nameID === nguoihoatdong.nameID) {
-                    danhsachhoso.forEach(hoso => {
-                        if (hoso.socccd === nguoihoatdong.cccd) {
-                            fillData(hoso);
-                            return;
-                        }
-                    })
-                    return;
-                }
-            });
+                danhsachnguoidung.forEach(nguoidung => {
+                    if (nguoidung.nameID == nguoihoatdong.nameID) {
+                        danhsachhoso.forEach(hoso => {
+                            if (hoso.socccd == nguoidung.cccd) {
+                                hosothisinh = hoso;
+                                taikhoan = nguoidung;
+                                return;
+                            }
+                        });
+                        return;
+                    }
+                });
+
+                fillData(hosothisinh, taikhoan);
+            }
         }
+
     }
     hienthithongtinhoso();
 
